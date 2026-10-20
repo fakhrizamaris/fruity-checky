@@ -1,0 +1,523 @@
+{
+  "fruits": [
+    {
+      "id": "banana",
+      "name": "Pisang",
+      "_todo": [
+        "Verifikasi kalimat alasan dan langkah cek dengan sumber UC Davis atau narasumber.",
+        "Pastikan URL sumber benar (belum dibuka ulang)."
+      ],
+      "reasons": {
+        "mentah": "Kulit masih dominan hijau, tanda pisang belum matang.",
+        "matang": "Kulit kuning merata dengan sedikit atau tanpa bintik cokelat.",
+        "terlalu_matang": "Bintik cokelat sudah banyak dan menyebar di kulit.",
+        "busuk": "Kulit menghitam luas, berjamur, atau ada bagian yang berair.",
+        "tidak_yakin": "Foto belum cukup jelas untuk menentukan kematangan. Lakukan cek fisik, atau foto ulang dengan cahaya lebih terang."
+      },
+      "notes": [
+        "Warna kulit dipengaruhi cahaya. Foto di tempat terang tanpa bayangan."
+      ],
+      "checkSteps": [
+        {
+          "id": "skin_color",
+          "instruction": "Lihat warna kulit pisang. Mana yang paling mirip?",
+          "options": [
+            {
+              "id": "green",
+              "label": "Hijau",
+              "suggests": "mentah"
+            },
+            {
+              "id": "yellow",
+              "label": "Kuning merata",
+              "suggests": "matang"
+            },
+            {
+              "id": "brown_spots",
+              "label": "Kuning dengan banyak bintik cokelat",
+              "suggests": "terlalu_matang"
+            },
+            {
+              "id": "black",
+              "label": "Hitam luas atau berjamur",
+              "suggests": "busuk"
+            }
+          ]
+        },
+        {
+          "id": "press",
+          "instruction": "Tekan lembut dengan ujung jari. Bagaimana rasanya?",
+          "options": [
+            {
+              "id": "hard",
+              "label": "Keras",
+              "suggests": "mentah"
+            },
+            {
+              "id": "slightly_soft",
+              "label": "Sedikit lunak",
+              "suggests": "matang"
+            },
+            {
+              "id": "very_soft",
+              "label": "Sangat lunak",
+              "suggests": "terlalu_matang"
+            },
+            {
+              "id": "leaking",
+              "label": "Lembek dan berair",
+              "suggests": "busuk"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "title": "UC Davis Postharvest Technology Center: Banana (TODO: cek URL)",
+          "url": "https://postharvest.ucdavis.edu"
+        }
+      ],
+      "shelfLife": {
+        "days": {
+          "mentah": 6,
+          "matang": 3,
+          "busuk": 0
+        },
+        "source": "Tabel label RipeNet 2.0 (github.com/alexcj10/ripenet), angka pilihan pembuat dataset, bukan hasil pengukuran."
+      }
+    },
+    {
+      "id": "mango",
+      "name": "Mangga",
+      "_todo": [
+        "Verifikasi apakah bau asam atau fermentasi lebih tepat dipetakan ke busuk atau terlalu matang.",
+        "Pastikan URL sumber benar (belum dibuka ulang)."
+      ],
+      "reasons": {
+        "mentah": "Tampilan kulit mirip mangga yang belum matang. Warna saja kurang pasti untuk mangga, jadi cek fisik dianjurkan.",
+        "matang": "Tampilan kulit mirip mangga matang. Warna mangga berbeda per varietas, jadi pastikan dengan cek fisik.",
+        "terlalu_matang": "Kulit terlihat keriput atau ada banyak bercak gelap.",
+        "busuk": "Ada bercak hitam luas, jamur, atau bagian berair di kulit.",
+        "tidak_yakin": "Foto belum cukup jelas untuk menentukan kematangan. Untuk mangga, cek fisik lebih bisa diandalkan daripada warna."
+      },
+      "notes": [
+        "Warna kulit mangga berbeda per varietas. Ada mangga matang yang kulitnya tetap hijau."
+      ],
+      "checkSteps": [
+        {
+          "id": "press",
+          "instruction": "Tekan lembut dengan telapak tangan, jangan dengan ujung jari. Bagaimana rasanya?",
+          "options": [
+            {
+              "id": "hard",
+              "label": "Keras",
+              "suggests": "mentah"
+            },
+            {
+              "id": "slightly_soft",
+              "label": "Sedikit lunak",
+              "suggests": "matang"
+            },
+            {
+              "id": "very_soft",
+              "label": "Sangat lunak",
+              "suggests": "terlalu_matang"
+            }
+          ]
+        },
+        {
+          "id": "aroma",
+          "instruction": "Cium aroma di pangkal tangkai. Apa yang tercium?",
+          "options": [
+            {
+              "id": "none",
+              "label": "Hampir tidak beraroma",
+              "suggests": "mentah"
+            },
+            {
+              "id": "fruity",
+              "label": "Aroma buah yang harum",
+              "suggests": "matang"
+            },
+            {
+              "id": "sour",
+              "label": "Bau asam atau seperti fermentasi",
+              "suggests": "busuk"
+            }
+          ]
+        },
+        {
+          "id": "spots",
+          "instruction": "Apakah ada bercak hitam luas, jamur, atau bagian berair?",
+          "options": [
+            {
+              "id": "none",
+              "label": "Tidak ada",
+              "suggests": null
+            },
+            {
+              "id": "some",
+              "label": "Ada",
+              "suggests": "busuk"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "title": "UC Davis Postharvest Technology Center: Mango (TODO: cek URL)",
+          "url": "https://postharvest.ucdavis.edu"
+        }
+      ],
+      "shelfLife": {
+        "days": {
+          "mentah": 7,
+          "matang": 3,
+          "busuk": 0
+        },
+        "source": "Tabel label RipeNet 2.0 (github.com/alexcj10/ripenet), angka pilihan pembuat dataset, bukan hasil pengukuran."
+      }
+    },
+    {
+      "id": "orange",
+      "name": "Jeruk",
+      "_todo": [
+        "Verifikasi bahwa jeruk lokal tropis bisa tetap hijau saat matang, dan tanda fisik terbaiknya (berat, kelunakan).",
+        "Model RipeNet hanya punya kelas mentah, matang (Fresh), busuk; terlalu matang tidak dilatih.",
+        "Pastikan URL sumber benar (belum dibuka ulang).",
+        "Verifikasi catatan: Warna kulit jeruk tidak selalu menunjukkan kematangan. Ada jeruk matang yang kulitnya masih hijau."
+      ],
+      "reasons": {
+        "mentah": "Tampilan kulit mirip jeruk yang belum matang. Warna jeruk kurang bisa diandalkan, jadi cek fisik dianjurkan.",
+        "matang": "Tampilan kulit mirip jeruk matang. Jeruk bisa tetap hijau walau matang, jadi pastikan dengan cek fisik.",
+        "terlalu_matang": "Kulit terlihat keriput, kusam, atau mulai lembek.",
+        "busuk": "Ada jamur (bercak putih, hijau, atau biru), bagian lembek berair, atau kulit menghitam.",
+        "tidak_yakin": "Foto belum cukup jelas untuk menentukan kematangan. Untuk jeruk, cek fisik lebih bisa diandalkan daripada warna."
+      },
+      "notes": [
+        "Warna kulit jeruk tidak selalu menunjukkan kematangan. Ada jeruk matang yang kulitnya masih hijau."
+      ],
+      "checkSteps": [
+        {
+          "id": "press",
+          "instruction": "Tekan lembut kulitnya. Bagaimana rasanya?",
+          "options": [
+            {
+              "id": "hard",
+              "label": "Keras sekali",
+              "suggests": "mentah"
+            },
+            {
+              "id": "firm",
+              "label": "Kencang tapi sedikit lentur",
+              "suggests": "matang"
+            },
+            {
+              "id": "soft",
+              "label": "Lembek atau kulit terasa kopong",
+              "suggests": "terlalu_matang"
+            }
+          ]
+        },
+        {
+          "id": "mold",
+          "instruction": "Apakah ada jamur, bagian berair, atau bau busuk?",
+          "options": [
+            {
+              "id": "none",
+              "label": "Tidak ada",
+              "suggests": null
+            },
+            {
+              "id": "some",
+              "label": "Ada",
+              "suggests": "busuk"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "title": "UC Davis Postharvest Technology Center: Orange (TODO: cek URL)",
+          "url": "https://postharvest.ucdavis.edu"
+        }
+      ],
+      "shelfLife": {
+        "days": {
+          "mentah": 8,
+          "matang": 5,
+          "busuk": 0
+        },
+        "source": "Tabel label RipeNet 2.0 (github.com/alexcj10/ripenet), angka pilihan pembuat dataset, bukan hasil pengukuran."
+      }
+    },
+    {
+      "id": "papaya",
+      "name": "Pepaya",
+      "_todo": [
+        "Verifikasi batas warna kuning untuk pepaya matang (persentase kulit kuning) dari sumber resmi.",
+        "Pastikan URL sumber benar (belum dibuka ulang).",
+        "Verifikasi catatan: Pepaya bisa sudah matang walau masih ada sedikit warna hijau."
+      ],
+      "reasons": {
+        "mentah": "Kulit masih hijau, belum terlihat perubahan ke kuning.",
+        "matang": "Sebagian besar kulit sudah berubah dari hijau ke kuning atau oranye.",
+        "terlalu_matang": "Kulit kuning tua dan terlihat mulai keriput atau lembek.",
+        "busuk": "Ada bercak gelap cekung, jamur, atau bagian berair di kulit.",
+        "tidak_yakin": "Foto belum cukup jelas untuk menentukan kematangan. Lakukan cek fisik, atau foto ulang dengan cahaya lebih terang."
+      },
+      "notes": [
+        "Pepaya bisa sudah matang walau masih ada sedikit warna hijau."
+      ],
+      "checkSteps": [
+        {
+          "id": "skin_color",
+          "instruction": "Lihat warna kulit pepaya. Mana yang paling mirip?",
+          "options": [
+            {
+              "id": "green",
+              "label": "Hijau penuh",
+              "suggests": "mentah"
+            },
+            {
+              "id": "partly_yellow",
+              "label": "Mulai ada garis kuning",
+              "suggests": null
+            },
+            {
+              "id": "mostly_yellow",
+              "label": "Sebagian besar kuning atau oranye",
+              "suggests": "matang"
+            }
+          ]
+        },
+        {
+          "id": "press",
+          "instruction": "Tekan lembut kulitnya. Bagaimana rasanya?",
+          "options": [
+            {
+              "id": "hard",
+              "label": "Keras",
+              "suggests": "mentah"
+            },
+            {
+              "id": "slightly_soft",
+              "label": "Sedikit lunak",
+              "suggests": "matang"
+            },
+            {
+              "id": "very_soft",
+              "label": "Sangat lunak",
+              "suggests": "terlalu_matang"
+            }
+          ]
+        },
+        {
+          "id": "spots",
+          "instruction": "Apakah ada bercak gelap yang cekung atau berjamur?",
+          "options": [
+            {
+              "id": "none",
+              "label": "Tidak ada",
+              "suggests": null
+            },
+            {
+              "id": "some",
+              "label": "Ada",
+              "suggests": "busuk"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "title": "UC Davis Postharvest Technology Center: Papaya (TODO: cek URL)",
+          "url": "https://postharvest.ucdavis.edu"
+        }
+      ],
+      "shelfLife": {
+        "days": {
+          "mentah": 5,
+          "matang": 2,
+          "busuk": 0
+        },
+        "source": "Tabel label RipeNet 2.0 (github.com/alexcj10/ripenet), angka pilihan pembuat dataset, bukan hasil pengukuran."
+      }
+    },
+    {
+      "id": "pineapple",
+      "name": "Nanas",
+      "_todo": [
+        "Verifikasi seberapa bisa diandalkan warna kulit dan aroma pangkal untuk kematangan nanas.",
+        "Model RipeNet hanya punya kelas mentah, matang (Fresh), busuk; terlalu matang tidak dilatih.",
+        "Pastikan URL sumber benar (belum dibuka ulang).",
+        "Verifikasi catatan: Warna kulit nanas tidak selalu menunjukkan kematangan."
+      ],
+      "reasons": {
+        "mentah": "Kulit masih dominan hijau. Warna nanas kurang pasti, jadi cek fisik dianjurkan.",
+        "matang": "Tampilan kulit mirip nanas matang. Pastikan dengan aroma di bagian bawah buah.",
+        "terlalu_matang": "Kulit kusam kecokelatan dan buah mulai lembek.",
+        "busuk": "Ada bagian berair, berjamur, atau menghitam pada kulit.",
+        "tidak_yakin": "Foto belum cukup jelas untuk menentukan kematangan. Untuk nanas, cek fisik lebih bisa diandalkan daripada warna."
+      },
+      "notes": [
+        "Warna kulit nanas tidak selalu menunjukkan kematangan."
+      ],
+      "checkSteps": [
+        {
+          "id": "aroma",
+          "instruction": "Cium bagian bawah (pangkal) nanas. Apa yang tercium?",
+          "options": [
+            {
+              "id": "none",
+              "label": "Hampir tidak beraroma",
+              "suggests": "mentah"
+            },
+            {
+              "id": "sweet",
+              "label": "Aroma manis harum",
+              "suggests": "matang"
+            },
+            {
+              "id": "sour",
+              "label": "Bau asam atau seperti fermentasi",
+              "suggests": "busuk"
+            }
+          ]
+        },
+        {
+          "id": "press",
+          "instruction": "Tekan lembut kulitnya. Bagaimana rasanya?",
+          "options": [
+            {
+              "id": "hard",
+              "label": "Keras",
+              "suggests": "mentah"
+            },
+            {
+              "id": "slightly_soft",
+              "label": "Sedikit lentur",
+              "suggests": "matang"
+            },
+            {
+              "id": "very_soft",
+              "label": "Lembek",
+              "suggests": "terlalu_matang"
+            }
+          ]
+        },
+        {
+          "id": "spots",
+          "instruction": "Apakah ada bagian berair, berjamur, atau menghitam?",
+          "options": [
+            {
+              "id": "none",
+              "label": "Tidak ada",
+              "suggests": null
+            },
+            {
+              "id": "some",
+              "label": "Ada",
+              "suggests": "busuk"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "title": "UC Davis Postharvest Technology Center: Pineapple (TODO: cek URL)",
+          "url": "https://postharvest.ucdavis.edu"
+        }
+      ],
+      "shelfLife": {
+        "days": {
+          "mentah": 6,
+          "matang": 3,
+          "busuk": 0
+        },
+        "source": "Tabel label RipeNet 2.0 (github.com/alexcj10/ripenet), angka pilihan pembuat dataset, bukan hasil pengukuran."
+      }
+    },
+    {
+      "id": "apple",
+      "name": "Apel",
+      "_todo": [
+        "Verifikasi kalimat alasan dan langkah cek dengan sumber UC Davis atau narasumber.",
+        "Pastikan URL sumber benar (belum dibuka ulang)."
+      ],
+      "reasons": {
+        "mentah": "Kulit tampak pucat atau kehijauan untuk varietasnya, biasanya keras dan rasanya masih asam.",
+        "matang": "Warna kulit merata sesuai varietasnya, mengilap, dan tanpa bagian lunak.",
+        "terlalu_matang": "Kulit mulai kusam atau berkerut, daging terasa lunak saat ditekan.",
+        "busuk": "Ada bercak cokelat lunak, jamur, atau bagian yang berair.",
+        "tidak_yakin": "Foto belum cukup jelas untuk menentukan kematangan. Lakukan cek fisik, atau foto ulang dengan cahaya lebih terang."
+      },
+      "notes": [
+        "Warna apel matang berbeda per varietas, misalnya apel hijau tetap hijau saat matang. Pastikan dengan kekerasan dan aroma."
+      ],
+      "checkSteps": [
+        {
+          "id": "press",
+          "instruction": "Tekan lembut kulit apel dengan ibu jari. Bagaimana rasanya?",
+          "options": [
+            {
+              "id": "hard",
+              "label": "Keras dan padat",
+              "suggests": "matang"
+            },
+            {
+              "id": "slightly_soft",
+              "label": "Sedikit lunak",
+              "suggests": "terlalu_matang"
+            },
+            {
+              "id": "mushy",
+              "label": "Lembek atau berair",
+              "suggests": "busuk"
+            }
+          ]
+        },
+        {
+          "id": "skin",
+          "instruction": "Lihat kulit apel. Mana yang paling sesuai?",
+          "options": [
+            {
+              "id": "smooth",
+              "label": "Mulus dan mengilap",
+              "suggests": "matang"
+            },
+            {
+              "id": "wrinkled",
+              "label": "Kusam atau berkerut",
+              "suggests": "terlalu_matang"
+            },
+            {
+              "id": "spots",
+              "label": "Ada bercak cokelat lunak atau jamur",
+              "suggests": "busuk"
+            },
+            {
+              "id": "unsure",
+              "label": "Tidak yakin",
+              "suggests": null
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "title": "UC Davis Postharvest Technology Center: Apple (TODO: cek URL)",
+          "url": "https://postharvest.ucdavis.edu"
+        }
+      ],
+      "shelfLife": {
+        "days": {
+          "mentah": 10,
+          "matang": 5,
+          "busuk": 0
+        },
+        "source": "Tabel label RipeNet 2.0 (github.com/alexcj10/ripenet), angka pilihan pembuat dataset, bukan hasil pengukuran."
+      }
+    }
+  ]
+}
