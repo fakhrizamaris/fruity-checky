@@ -42,6 +42,31 @@ struct ShelfDetectionTests {
         #expect(detections.map(\.fruit) == [.mango, .dragonFruit, nil])
     }
 
+    @Test func nestedDuplicateIsDropped() {
+        // IoU of these two is only 0.25, but the small box lies entirely inside the big one.
+        let candidates = [
+            ShelfCandidate(box: box(0.1, 0.1, 0.2, 0.2), label: "mango", confidence: 0.9),
+            ShelfCandidate(box: box(0.15, 0.15, 0.1, 0.1), label: "papaya", confidence: 0.8),
+            ShelfCandidate(box: box(0.5, 0.5, 0.1, 0.1), label: "mango", confidence: 0.7),
+        ]
+        let detections = ShelfPostProcessing.finalize(candidates, minConfidence: 0.5)
+        #expect(detections.map(\.fruit) == [.mango, .mango])
+        #expect(ShelfPostProcessing.containment(box(0.1, 0.1, 0.2, 0.2), box(0.15, 0.15, 0.1, 0.1)) == 1)
+    }
+
+    @Test func boxesTooLargeForOneFruitAreDropped() {
+        let candidates = [
+            ShelfCandidate(box: box(0, 0, 0.7, 0.7), label: "mango", confidence: 0.95), // whole crate
+            ShelfCandidate(box: box(0.1, 0.1), label: "mango", confidence: 0.9),
+        ]
+        #expect(ShelfPostProcessing.finalize(candidates, minConfidence: 0.5).count == 1)
+    }
+
+    @Test func defaultThresholdDropsWeakBoxes() {
+        let candidates = [ShelfCandidate(box: box(0.1, 0.1), label: "mango", confidence: 0.5)]
+        #expect(ShelfPostProcessing.finalize(candidates).isEmpty)
+    }
+
     @Test func countsMostCommonFirstUnknownLast() {
         let detections = [
             ShelfDetection(number: 1, box: box(0, 0), fruit: nil, confidence: 1),

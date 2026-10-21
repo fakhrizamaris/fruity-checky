@@ -28,10 +28,13 @@ final class CameraService: NSObject, @unchecked Sendable {
     private var isConfigured = false
     private var photoContinuation: CheckedContinuation<Data, Error>?
 
-    /// Live frames for scanning: the centre square, upright, about 448 px. Set before `start()`.
+    /// Live frames for scanning: the centre square, upright, at most `frameSide` px. Set before `start()`.
     /// Called on a background queue at most `framesPerSecond` times per second.
     var onFrame: (@Sendable (CGImage) -> Void)?
     var framesPerSecond: Double = 3
+    /// Side of the live frame. 448 is enough when one fruit fills the guide square (single-fruit scan); the
+    /// shopping scan crops a fruit out of the frame, so it asks for more pixels to keep that crop sharp.
+    var frameSide: CGFloat = 448
     private var lastFrame: CFAbsoluteTime = 0
 
     static func requestAccess() async -> Bool {
@@ -138,11 +141,11 @@ extension CameraService: AVCaptureVideoDataOutputSampleBufferDelegate {
               let pixels = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         lastFrame = now
 
-        // Centre square (the guide frame), downscaled: the model only needs 224 x 224.
+        // Centre square (the guide frame), downscaled to `frameSide`.
         let image = CIImage(cvPixelBuffer: pixels)
         let side = min(image.extent.width, image.extent.height)
         let square = CGRect(x: image.extent.midX - side / 2, y: image.extent.midY - side / 2, width: side, height: side)
-        let scale = min(1, 448 / side)
+        let scale = min(1, frameSide / side)
         let cropped = image.cropped(to: square)
             .transformed(by: CGAffineTransform(translationX: -square.minX, y: -square.minY))
             .transformed(by: CGAffineTransform(scaleX: scale, y: scale))

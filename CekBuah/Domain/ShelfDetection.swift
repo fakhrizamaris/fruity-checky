@@ -26,10 +26,25 @@ struct ShelfDetection: Identifiable, Sendable, Equatable {
 
 /// Pure post-processing shared by all detectors, so it can be unit tested without a model.
 enum ShelfPostProcessing {
-    /// Below this confidence a box is dropped. Testers can change it on the scan screen.
-    static let defaultMinConfidence = 0.4
+    /// Below this confidence a box is dropped (also the live scan's minimum, see LiveFruitPick).
+    /// 0.6 from the first iPhone tests (20 Oct 2026, two crate photos): at 0.4 a crate of about 35 mangoes
+    /// gave 50 boxes. Pick the final value from a labelled set of real shelf photos.
+    static let defaultMinConfidence = 0.6
     /// Boxes overlapping more than this are the same fruit.
     static let defaultIoUThreshold = 0.5
+    /// A box whose area lies this much inside a better box is a duplicate of that fruit
+    /// (IoU misses a small box nested in a big one).
+    static let defaultContainment = 0.8
+    /// One fruit on a shelf photo is never this large; such boxes cover empty space or the whole crate.
+    static let defaultMaxBoxArea = 0.35
+
+    /// Share of the smaller box that lies inside the other box (0...1).
+    static func containment(_ a: CGRect, _ b: CGRect) -> Double {
+        let intersection = a.intersection(b)
+        guard !intersection.isNull else { return 0 }
+        let smaller = min(a.width * a.height, b.width * b.height)
+        return smaller > 0 ? Double(intersection.width * intersection.height / smaller) : 0
+    }
 
     static func intersectionOverUnion(_ a: CGRect, _ b: CGRect) -> Double {
         let intersection = a.intersection(b)
@@ -41,10 +56,14 @@ enum ShelfPostProcessing {
 
     /// Greedy non-maximum suppression across all labels. The Create ML model already suppresses
     /// duplicates per label; this also removes one fruit reported as two different kinds.
-    static func suppress(_ candidates: [ShelfCandidate], iouThreshold: Double) -> [ShelfCandidate] {
+    static func suppress(_ candidates: [ShelfCandidate], iouThreshold: Double,
+                         containment maxContainment: Double = 1.01) -> [ShelfCandidate] {
         var kept: [ShelfCandidate] = []
         for candidate in candidates.sorted(by: { $0.confidence > $1.confidence }) where
-            !kept.contains(where: { intersectionOverUnion($0.box, candidate.box) > iouThreshold }) {
+            !kept.contains(where: {
+                intersectionOverUnion($0.box, candidate.box) > iouThreshold
+                    || containment($0.box, candidate.box) > maxContainment
+            }) {
             kept.append(candidate)
         }
         return kept
@@ -71,8 +90,13 @@ enum ShelfPostProcessing {
 
     static func finalize(_ candidates: [ShelfCandidate],
                          minConfidence: Double = defaultMinConfidence,
-                         iouThreshold: Double = defaultIoUThreshold) -> [ShelfDetection] {
-        let kept = suppress(candidates.filter { $0.confidence >= minConfidence }, iouThreshold: iouThreshold)
+                         iouThreshold: Double = defaultIoUThreshold,
+                         containment: Double = defaultContainment,
+                         maxBoxArea: Double = defaultMaxBoxArea) -> [ShelfDetection] {
+        let plausible = candidates.filter {
+            $0.confidence >= minConfidence && Double($0.box.width * $0.box.height) <= maxBoxArea
+        }
+        let kept = suppress(plausible, iouThreshold: iouThreshold, containment: containment)
         return readingOrder(kept.map(\.box)).enumerated().map { position, index in
             let candidate = kept[index]
             return ShelfDetection(number: position + 1, box: candidate.box,

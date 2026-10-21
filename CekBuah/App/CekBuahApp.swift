@@ -28,7 +28,6 @@ struct CapturedPhoto: Hashable, Identifiable {
 enum Route: Hashable {
     case camera
     case result(CapturedPhoto)
-    case shelfScan(CapturedPhoto)
     case liveScan
     case basket
     case physicalCheck(Fruit)
@@ -57,7 +56,6 @@ struct RootView: View {
                     switch route {
                     case .camera: CameraView()
                     case .result(let photo): ResultView(photo: photo)
-                    case .shelfScan(let photo): ShelfScanView(photo: photo)
                     case .liveScan: LiveScanView()
                     case .basket: BasketView()
                     case .physicalCheck(let fruit): PhysicalCheckView(fruit: fruit)

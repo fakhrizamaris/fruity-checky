@@ -4,40 +4,19 @@ import Testing
 @testable import CekBuah
 
 struct BasketTests {
-    private let photo = UUID()
-
     private func result(_ state: RipenessState) -> ClassificationResult {
         ClassificationResult(state: state, confidence: 0.9,
                              ranked: [ClassPrediction(state: state, probability: 0.9)], isDemo: true)
     }
 
-    private func shelfItem(_ number: Int, _ kind: ShelfFruit?, _ state: RipenessState?) -> BasketItem {
-        BasketItem(source: .shelf(photoID: photo, number: number), kind: kind,
-                   result: state.map(result), thumbnail: nil)
-    }
-
-    @Test func tappingTheSameBoxTwicePutsTheFruitBack() {
-        var items: [BasketItem] = []
-        #expect(BasketRules.toggle(shelfItem(3, .mango, .ripe), in: &items))
-        #expect(items.count == 1)
-        // A new BasketItem value for the same box still matches by source.
-        #expect(!BasketRules.toggle(shelfItem(3, .mango, .ripe), in: &items))
-        #expect(items.isEmpty)
-    }
-
-    @Test func differentBoxesAndPhotosAreDifferentFruits() {
-        var items: [BasketItem] = []
-        BasketRules.toggle(shelfItem(1, .banana, .ripe), in: &items)
-        BasketRules.toggle(shelfItem(2, .banana, .ripe), in: &items)
-        BasketRules.toggle(BasketItem(source: .shelf(photoID: UUID(), number: 1), kind: .banana,
-                                      result: result(.ripe), thumbnail: nil), in: &items)
-        #expect(items.count == 3)
+    private func item(_ kind: ShelfFruit?, _ state: RipenessState?) -> BasketItem {
+        BasketItem(source: .live(UUID()), kind: kind, result: state.map(result), thumbnail: nil)
     }
 
     @Test func groupsByKindThenRipeningOrder() {
         let items = [
-            shelfItem(1, .papaya, .ripe), shelfItem(2, .banana, .overripe), shelfItem(3, .banana, .unripe),
-            shelfItem(4, .banana, .unripe), shelfItem(5, nil, nil), shelfItem(6, .avocado, nil),
+            item(.papaya, .ripe), item(.banana, .overripe), item(.banana, .unripe),
+            item(.banana, .unripe), item(nil, nil), item(.avocado, nil),
         ]
         let groups = BasketRules.groups(items)
         #expect(groups.map(\.kind) == [.avocado, .banana, .banana, .papaya, nil])
@@ -46,28 +25,25 @@ struct BasketTests {
     }
 
     @Test func onlyKnownRipenessThatIsNotRottenIsStocked() {
-        #expect(shelfItem(1, .banana, .ripe).canStock)
-        #expect(!shelfItem(2, .banana, .rotten).canStock)
-        #expect(!shelfItem(3, .banana, nil).canStock)       // ripeness not judged yet
-        #expect(!shelfItem(4, .avocado, .ripe).canStock)    // no stock fruit for avocado yet
-        #expect(!shelfItem(5, nil, .ripe).canStock)
+        #expect(item(.banana, .ripe).canStock)
+        #expect(!item(.banana, .rotten).canStock)
+        #expect(!item(.banana, nil).canStock)       // ripeness not judged
+        #expect(!item(.avocado, .ripe).canStock)    // no stock fruit for avocado yet
+        #expect(!item(nil, .ripe).canStock)
     }
 
-    @MainActor @Test func lateRipenessFillsAPickedFruit() {
+    @MainActor @Test func sameLiveScanIsNotAddedTwice() {
         let basket = Basket()
-        let source = BasketSource.shelf(photoID: photo, number: 7)
-        basket.toggle(BasketItem(source: source, kind: .mango, result: nil, thumbnail: nil))
-        basket.update(source, result: result(.unripe))
-        #expect(basket.items.first?.state == .unripe)
-        // An existing judgement is not overwritten.
-        basket.update(source, result: result(.rotten))
-        #expect(basket.items.first?.state == .unripe)
+        let scan = BasketItem(source: .live(UUID()), kind: .mango, result: result(.ripe), thumbnail: nil)
+        basket.add(scan)
+        basket.add(scan)
+        #expect(basket.count == 1)
     }
 
     @MainActor @Test func undoRemovesTheLastLiveFruit() {
         let basket = Basket()
-        basket.add(BasketItem(source: .live(UUID()), kind: .banana, result: result(.ripe), thumbnail: nil))
-        basket.add(BasketItem(source: .live(UUID()), kind: .papaya, result: result(.unripe), thumbnail: nil))
+        basket.add(item(.banana, .ripe))
+        basket.add(item(.papaya, .unripe))
         #expect(basket.removeLast()?.kind == .papaya)
         #expect(basket.count == 1)
     }
@@ -86,6 +62,12 @@ struct LiveFruitPickTests {
 
     @Test func lowConfidenceIsIgnored() {
         #expect(LiveFruitPick.best([candidate(0.4, 0.4, 0.3)]) == nil)
+    }
+
+    @Test func largeBoxAtTheEdgeIsTooClose() {
+        #expect(LiveFruitPick.isTooClose(CGRect(x: 0, y: 0.1, width: 0.8, height: 0.8)))
+        #expect(!LiveFruitPick.isTooClose(CGRect(x: 0.15, y: 0.15, width: 0.7, height: 0.7)))   // big but inside
+        #expect(!LiveFruitPick.isTooClose(CGRect(x: 0, y: 0.4, width: 0.2, height: 0.2)))        // small fruit at the edge
     }
 
     @Test func sameFruitNeedsSameKindAndOverlap() {

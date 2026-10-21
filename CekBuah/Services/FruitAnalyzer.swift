@@ -98,8 +98,18 @@ struct FruitAnalyzer: Sendable {
     /// Crops a padded square around the box, so a long banana is not cut off by the
     /// model's centre crop and the input looks like the close-up training photos.
     static func squareCrop(of image: CGImage, around box: CGRect, padding: CGFloat = 0.08) -> CGImage? {
-        let width = CGFloat(image.width)
-        let height = CGFloat(image.height)
+        let square = squareRect(around: box, width: CGFloat(image.width), height: CGFloat(image.height), padding: padding)
+        return image.cropping(to: square.integral)
+    }
+
+    /// The padded square that `squareCrop` cuts, normalized (0...1): what the model actually looks at.
+    /// The live view draws this instead of the raw detector box.
+    static func normalizedSquare(around box: CGRect, width: CGFloat, height: CGFloat, padding: CGFloat) -> CGRect {
+        let square = squareRect(around: box, width: width, height: height, padding: padding)
+        return CGRect(x: square.minX / width, y: square.minY / height, width: square.width / width, height: square.height / height)
+    }
+
+    private static func squareRect(around box: CGRect, width: CGFloat, height: CGFloat, padding: CGFloat) -> CGRect {
         let pixelBox = CGRect(x: box.minX * width, y: box.minY * height,
                               width: box.width * width, height: box.height * height)
         let side = min(max(pixelBox.width, pixelBox.height) * (1 + padding * 2), min(width, height))
@@ -107,6 +117,6 @@ struct FruitAnalyzer: Sendable {
         // Keep the square inside the photo.
         square.origin.x = min(max(square.minX, 0), width - side)
         square.origin.y = min(max(square.minY, 0), height - side)
-        return image.cropping(to: square.integral)
+        return square
     }
 }

@@ -21,8 +21,6 @@ struct HomeView: View {
 
                 ScanCard()
 
-                ShelfScanCard()
-
                 StockSummaryCard()
             }
             .padding(Spacing.l)
@@ -60,7 +58,7 @@ struct HomeView: View {
     }
 }
 
-/// Shopping flow: scan fruits one by one (or tap them on a shelf photo) into a basket, then save to stock.
+/// Shopping flow: scan fruits one by one into a basket, then save to stock.
 private struct ShoppingCard: View {
     @Environment(Router.self) private var router
     @Environment(Basket.self) private var basket
@@ -69,7 +67,7 @@ private struct ShoppingCard: View {
         VStack(alignment: .leading, spacing: Spacing.m) {
             Label("Belanja buah", systemImage: "cart")
                 .font(.headline)
-            Text("Arahkan kamera ke buah satu per satu, atau foto seluruh rak lalu ketuk buah yang ingin diambil.")
+            Text("Arahkan kamera ke buah satu per satu (seluruh buah terlihat) dan putar perlahan. Setelah app yakin, pilih Ambil atau Pilih yang lain.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -193,55 +191,6 @@ private struct ScanCard: View {
             }
             errorMessage = nil
             router.push(.result(CapturedPhoto(image: image.normalized())))
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-}
-
-/// Many fruits in one photo (a shelf, crate or fruit bowl): one box per fruit and a count per kind.
-private struct ShelfScanCard: View {
-    @Environment(Router.self) private var router
-    @State private var pickerItem: PhotosPickerItem?
-    @State private var errorMessage: String?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.m) {
-            Label("Pindai rak", systemImage: "square.grid.3x3.square")
-                .font(.headline)
-            Text("Satu foto untuk banyak buah: " + ShelfFruit.allCases.map { "\($0.emoji) \($0.displayName)" }.joined(separator: ", "))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            PhotosPicker(selection: $pickerItem, matching: .images) {
-                Label("Pilih foto rak", systemImage: "photo.stack")
-            }
-            .buttonStyle(PrimaryButtonStyle(prominent: false))
-            .accessibilityHint("Memilih foto rak atau keranjang buah dari galeri")
-
-            if let errorMessage {
-                Label(errorMessage, systemImage: "exclamationmark.triangle")
-                    .font(.footnote)
-            }
-        }
-        .card()
-        .onChange(of: pickerItem) { _, item in
-            guard let item else { return }
-            Task { await loadPicked(item) }
-        }
-    }
-
-    private func loadPicked(_ item: PhotosPickerItem) async {
-        defer { pickerItem = nil }
-        do {
-            guard let data = try await item.loadTransferable(type: Data.self), let image = UIImage(data: data) else {
-                errorMessage = "Foto tidak dapat dibuka. Silakan pilih foto lain."
-                return
-            }
-            errorMessage = nil
-            // Larger than the single-fruit flow: small fruits at the back of a crate need the pixels.
-            router.push(.shelfScan(CapturedPhoto(image: image.normalized(maxDimension: 2048))))
         } catch {
             errorMessage = error.localizedDescription
         }

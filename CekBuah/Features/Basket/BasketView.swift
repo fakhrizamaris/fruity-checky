@@ -16,7 +16,7 @@ struct BasketView: View {
         List {
             if basket.items.isEmpty {
                 Section {
-                    Text("Keranjang masih kosong. Pindai buah satu per satu, atau foto rak lalu ketuk buah yang ingin diambil.")
+                    Text("Keranjang masih kosong. Arahkan kamera ke buah satu per satu, lalu pilih Ambil.")
                         .foregroundStyle(.secondary)
                     Button("Mulai pindai", systemImage: "camera.viewfinder") { router.push(.liveScan) }
                 }
@@ -144,17 +144,7 @@ private struct BasketRow: View {
                 }
             }
             Spacer(minLength: 0)
-            Text(sourceText)
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .combine)
-    }
-
-    private var sourceText: String {
-        switch item.source {
-        case .shelf: "Foto rak"
-        case .live: "Live"
-        }
     }
 }

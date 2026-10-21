@@ -5,7 +5,7 @@ import Foundation
 /// and the label only changes after the same fruit is seen in consecutive frames.
 enum LiveFruitPick {
     /// Boxes below this detector confidence are ignored in the live view.
-    static let minConfidence = 0.5
+    static let minConfidence = ShelfPostProcessing.defaultMinConfidence
     /// Boxes in consecutive frames overlapping more than this are the same fruit.
     static let sameFruitIoU = 0.3
 
@@ -23,6 +23,12 @@ enum LiveFruitPick {
         // 0 at the centre, about 0.7 in a corner.
         let distance = Double((dx * dx + dy * dy).squareRoot())
         return candidate.confidence * (1 - distance)
+    }
+
+    /// A box that is large and touches the frame edge: the fruit is too close and partly cut off.
+    static func isTooClose(_ box: CGRect, edge: CGFloat = 0.02, minArea: CGFloat = 0.35) -> Bool {
+        let touches = box.minX < edge || box.minY < edge || box.maxX > 1 - edge || box.maxY > 1 - edge
+        return touches && box.width * box.height > minArea
     }
 
     /// Same kind and overlapping boxes: treated as the same fruit, so the label can settle.

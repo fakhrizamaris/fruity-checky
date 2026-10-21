@@ -2,10 +2,9 @@ import Foundation
 import Observation
 import UIKit
 
-/// Where a basket item came from, so tapping the same shelf box again puts that fruit back.
+/// Where a basket item came from. Only the live scan adds fruit since the shelf photo was removed
+/// (21 Oct 2026); kept as an enum so a manual add can join later.
 enum BasketSource: Hashable, Sendable {
-    /// Box `number` on the shelf photo `photoID`.
-    case shelf(photoID: UUID, number: Int)
     /// One fruit added from the live scan.
     case live(UUID)
 }
@@ -56,18 +55,6 @@ struct BasketGroup: Identifiable, Equatable, Sendable {
 
 /// Pure basket rules, kept apart from the observable store so they can be unit tested.
 enum BasketRules {
-    /// Adds the item, or removes the existing item with the same source ("put the fruit back").
-    /// Returns true when the item is now in the basket.
-    @discardableResult
-    static func toggle(_ item: BasketItem, in items: inout [BasketItem]) -> Bool {
-        if let index = items.firstIndex(where: { $0.source == item.source }) {
-            items.remove(at: index)
-            return false
-        }
-        items.append(item)
-        return true
-    }
-
     /// Groups by kind, then by ripeness in ripening order; unknown kinds and unjudged fruit last.
     static func groups(_ items: [BasketItem]) -> [BasketGroup] {
         let grouped = Dictionary(grouping: items) { GroupKey(kind: $0.kind, state: $0.state) }
@@ -86,7 +73,7 @@ enum BasketRules {
     }
 }
 
-/// The shopping basket shared by the shelf scan, the live scan and the basket screen.
+/// The shopping basket shared by the live scan and the basket screen.
 @MainActor
 @Observable
 final class Basket {
@@ -97,18 +84,9 @@ final class Basket {
 
     func contains(_ source: BasketSource) -> Bool { items.contains { $0.source == source } }
 
-    @discardableResult
-    func toggle(_ item: BasketItem) -> Bool { BasketRules.toggle(item, in: &items) }
-
     func add(_ item: BasketItem) {
         guard !contains(item.source) else { return }
         items.append(item)
-    }
-
-    /// Fills in ripeness that finished after the fruit was picked.
-    func update(_ source: BasketSource, result: ClassificationResult) {
-        guard let index = items.firstIndex(where: { $0.source == source }), items[index].result == nil else { return }
-        items[index].result = result
     }
 
     func remove(_ id: BasketItem.ID) { items.removeAll { $0.id == id } }
